@@ -4,7 +4,7 @@ import numpy as np
 from copy import deepcopy
 from typing import Union, List, Tuple
 
-from dynamic_network_architectures.architectures.unet import ResidualEncoderUNet
+from dynamic_network_architectures.architectures.unet import ResidualEncoderUNet, ResidualEncoderAttentionUNet
 from dynamic_network_architectures.building_blocks.helper import convert_dim_to_conv_op, get_matching_instancenorm
 from nnunetv2.preprocessing.resampling.resample_torch import resample_torch_fornnunet
 from torch import nn
@@ -242,6 +242,26 @@ class nnUNetPlannerResEncM(ResEncUNetPlanner):
         self.UNet_reference_val_3d = 680000000
         self.UNet_reference_val_2d = 135000000
         self.max_dataset_covered = 1
+
+class CBAMResEncUNetPlanner(nnUNetPlannerResEncM):
+    def __init__(self,
+                 dataset_name_or_id,
+                 gpu_memory_target_in_gb=8,
+                 preprocessor_name='DefaultPreprocessor',
+                 plans_name='nnUNetCBAMResEncUNetPlans',
+                 overwrite_target_spacing=None,
+                 suppress_transpose=False):
+
+        super().__init__(
+            dataset_name_or_id,
+            gpu_memory_target_in_gb,
+            preprocessor_name,
+            plans_name,
+            overwrite_target_spacing,
+            suppress_transpose
+        )
+
+        self.UNet_class = ResidualEncoderAttentionUNet
 
 
 class nnUNetPlannerResEncL(ResEncUNetPlanner):
