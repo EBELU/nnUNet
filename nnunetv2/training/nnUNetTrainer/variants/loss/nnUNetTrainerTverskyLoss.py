@@ -35,7 +35,7 @@ class nnUNetTrainerTverskyCELoss(nnUNetTrainer):
                 device: torch.device = torch.device('cuda')):
         """used for debugging plans etc"""
         super().__init__(plans, configuration, fold, dataset_json, device)
-        self.num_epochs = 350
+        self.num_epochs = 500
         self.alpha = 0.7
         self.beta = 0.3
         self.gamma = 1
@@ -83,11 +83,21 @@ class nnUNetTrainerTverskyCELoss_a07b03g1(nnUNetTrainerTverskyCELoss):
         super().__init__(plans, configuration, fold, dataset_json, device)
 
         
-class nnUNetTrainerTverskyDiceCELoss_a03b07g1(nnUNetTrainerTverskyCELoss):
+class nnUNetTrainerTverskyDiceCELoss_a03b07g1_250(nnUNetTrainerTverskyCELoss):
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
                 device: torch.device = torch.device('cuda')):
         """used for debugging plans etc"""
         super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 250
+        self.alpha = 0.3
+        self.beta = 0.7
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g1_750(nnUNetTrainerTverskyCELoss):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                device: torch.device = torch.device('cuda')):
+        """used for debugging plans etc"""
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 750
         self.alpha = 0.3
         self.beta = 0.7
 
