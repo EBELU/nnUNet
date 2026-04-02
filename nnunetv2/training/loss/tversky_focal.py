@@ -62,13 +62,13 @@ class TverskyLoss(nn.Module):
 
 
 class MemoryEfficientSoftTverskyDiceLoss(nn.Module):
-    def __init__(self, alpha: float = 0.7, beta: float = 0.3, focal_gamma: float = 1, apply_nonlin: Callable = None, batch_dice: bool = False, do_bg: bool = True, smooth: float = 1.,
+    def __init__(self, alpha: float = 0.7, beta: float = 0.3, focal_gamma: float = 1, tversky_weight = 1, dice_weight = 1, surface_weight=0.1, apply_nonlin: Callable = None, batch_dice: bool = False, do_bg: bool = True, smooth: float = 1.,
                  ddp: bool = True):
         """
         saves 1.6 GB on Dataset017 3d_lowres
         """
 
-        print(alpha, beta)
+        print(f"Tversky alpha: {alpha}, Tversky beta: {beta}, focal gamma: {focal_gamma}, Dice weight: {dice_weight}, Tversky weight: {tversky_weight}, Surface Dice weight: {surface_weight}")
         super(MemoryEfficientSoftTverskyDiceLoss, self).__init__()
         self.alpha, self.beta = alpha, beta
         self.focal_gamma = focal_gamma
@@ -77,6 +77,9 @@ class MemoryEfficientSoftTverskyDiceLoss(nn.Module):
         self.apply_nonlin = apply_nonlin
         self.smooth = smooth
         self.ddp = ddp
+        self.tversky_weight = tversky_weight
+        self.dice_weight = dice_weight
+        self.surface_weight = surface_weight
 
     def forward(self, x, y, loss_mask=None):
         if self.apply_nonlin is not None:
@@ -135,7 +138,20 @@ class MemoryEfficientSoftTverskyDiceLoss(nn.Module):
 
         tversky = tversky.mean()
 
-        total_loss = tversky + dc
+        surface_loss = 0.
+        sdf = None
+        if sdf is not None:
+            # match channels if needed
+            if not self.do_bg:
+                sdf = sdf[:, 1:]
+
+            surface_loss = torch.mean(x * sdf)
+
+        total_loss = (
+            tversky * self.tversky_weight +
+            dc * self.dice_weight +
+            surface_loss * self.surface_weight
+        )
         return -total_loss
 
 

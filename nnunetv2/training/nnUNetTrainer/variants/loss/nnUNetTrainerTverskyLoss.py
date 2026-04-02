@@ -39,17 +39,22 @@ class nnUNetTrainerTverskyCELoss(nnUNetTrainer):
         self.alpha = 0.7
         self.beta = 0.3
         self.gamma = 1
+        self.tversky_weight = 1
+        self.dice_weight = 1
+        self.surface_weight = 0
 
     def _build_loss(self):
         if self.label_manager.has_regions:
             loss = DC_and_BCE_loss({},
                                    {'batch_dice': self.configuration_manager.batch_dice,
-                                    'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp, "alpha": self.alpha, "beta": self.beta , "focal_gamma": self.gamma},
+                                    'do_bg': True, 'smooth': 1e-5, 'ddp': self.is_ddp, "alpha": self.alpha, "beta": self.beta , "focal_gamma": self.gamma,
+                                    "dice_weight": self.dice_weight, "tversky_weight":self.tversky_weight, "surface_weight": self.surface_weight},
                                    use_ignore_label=self.label_manager.ignore_label is not None,
                                    dice_class=MemoryEfficientSoftTverskyDiceLoss)
         else:
             loss = DC_and_CE_loss({'batch_dice': self.configuration_manager.batch_dice,
-                                   'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp, "alpha": self.alpha, "beta": self.beta , "focal_gamma": self.gamma}, {}, weight_ce=1, weight_dice=1,
+                                   'smooth': 1e-5, 'do_bg': False, 'ddp': self.is_ddp, "alpha": self.alpha, "beta": self.beta , "focal_gamma": self.gamma,
+                                   "dice_weight": self.dice_weight, "tversky_weight":self.tversky_weight, "surface_weight": self.surface_weight}, {}, weight_ce=1, weight_dice=1,
                                   ignore_label=self.label_manager.ignore_label, dice_class=MemoryEfficientSoftTverskyDiceLoss)
 
         if self._do_i_compile():
@@ -91,6 +96,31 @@ class nnUNetTrainerTverskyDiceCELoss_a03b07g1_250(nnUNetTrainerTverskyCELoss):
         self.num_epochs = 250
         self.alpha = 0.3
         self.beta = 0.7
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g075_OS66_250(nnUNetTrainerTverskyCELoss):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                device: torch.device = torch.device('cuda')):
+        """used for debugging plans etc"""
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.oversample_foreground_percent = 0.66
+        self.num_epochs = 250
+        self.alpha = 0.3
+        self.beta = 0.7
+        self.gamma = 0.75
+        self.tversky_weight = 1.5
+
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g075_SD01_OS66_250(nnUNetTrainerTverskyDiceCELoss_a03b07g075_OS66_250):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+        device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.surface_weight = 0.1
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g075_OS66_400(nnUNetTrainerTverskyDiceCELoss_a03b07g075_OS66_250):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+        device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 400
 
 class nnUNetTrainerTverskyDiceCELoss_a03b07g1_750(nnUNetTrainerTverskyCELoss):
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
