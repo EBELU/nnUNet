@@ -9,7 +9,8 @@ from dynamic_network_architectures.architectures.unet import (ResidualEncoderUNe
                                                               ResidualUNet_SqueezeAttention, 
                                                               ResidualUNet, 
                                                               ResidualUNet_SqueezeGatedAttention,
-                                                              ResidualUNet_CBAMAttention)
+                                                              ResidualUNet_CBAMAttention,
+                                                              ResidualUNet_CBAMGatedAttention)
 from dynamic_network_architectures.building_blocks.helper import convert_dim_to_conv_op, get_matching_instancenorm
 from nnunetv2.preprocessing.resampling.resample_torch import resample_torch_fornnunet
 from torch import nn
@@ -348,6 +349,26 @@ class CBAMAttentionResUNetPlanner(nnUNetPlannerResEncM):
 
         self.UNet_class = ResidualUNet_CBAMAttention
 
+class CBAMGatedAttentionResUNetPlanner(nnUNetPlannerResEncM):
+    def __init__(self,
+                 dataset_name_or_id,
+                 gpu_memory_target_in_gb=8,
+                 preprocessor_name='DefaultPreprocessor',
+                 plans_name='nnUNetCBAMGatedAttentionResUNetPlans',
+                 overwrite_target_spacing=None,
+                 suppress_transpose=False):
+
+        super().__init__(
+            dataset_name_or_id,
+            gpu_memory_target_in_gb,
+            preprocessor_name,
+            plans_name,
+            overwrite_target_spacing,
+            suppress_transpose
+        )
+
+        self.UNet_class = ResidualUNet_CBAMGatedAttention
+
 class CBAMAttentionResUNetSmallPlanner(nnUNetPlannerResEncM):
     def __init__(self,
                  dataset_name_or_id,
@@ -410,6 +431,25 @@ class CBAMAttentionResUNetSmallPlanner(nnUNetPlannerResEncM):
                 target_spacing_of_that_axis = max(max(other_spacings), target_spacing_of_that_axis) + 1e-5
             target[worst_spacing_axis] = target_spacing_of_that_axis
         return target
+    
+class CBAMAttentionResUNetHighResPlanner(nnUNetPlannerResEncM):
+    def __init__(self,
+                 dataset_name_or_id,
+                 gpu_memory_target_in_gb=8,
+                 preprocessor_name='DefaultPreprocessor',
+                 plans_name='nnUNetCBAMAttentionResUNetHighResPlans',
+                 overwrite_target_spacing=None,
+                 suppress_transpose=False):
+
+        super().__init__(
+            dataset_name_or_id,
+            gpu_memory_target_in_gb,
+            preprocessor_name,
+            plans_name,
+            overwrite_target_spacing,
+            suppress_transpose
+        )
+        self.UNet_featuremap_min_edge_length = 4
 
 class CBAMAttentionResUNetE2SmallPlanner(CBAMAttentionResUNetSmallPlanner):
     def __init__(self,

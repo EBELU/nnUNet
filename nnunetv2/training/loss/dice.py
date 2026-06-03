@@ -62,7 +62,7 @@ class MemoryEfficientSoftDiceLoss(nn.Module):
         saves 1.6 GB on Dataset017 3d_lowres
         """
         super(MemoryEfficientSoftDiceLoss, self).__init__()
-
+        print("Using memory efficient soft dice loss")
         self.do_bg = do_bg
         self.batch_dice = batch_dice
         self.apply_nonlin = apply_nonlin

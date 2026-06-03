@@ -68,7 +68,7 @@ class MemoryEfficientSoftTverskyDiceLoss(nn.Module):
         saves 1.6 GB on Dataset017 3d_lowres
         """
 
-        print(f"Tversky alpha: {alpha}, Tversky beta: {beta}, focal gamma: {focal_gamma}, Dice weight: {dice_weight}, Tversky weight: {tversky_weight}, Surface Dice weight: {surface_weight}")
+        print(f"MemEffSoftTverksy: => Tversky alpha: {alpha}, Tversky beta: {beta}, focal gamma: {focal_gamma}, Dice weight: {dice_weight}, Tversky weight: {tversky_weight}, Surface Dice weight: {surface_weight}")
         super(MemoryEfficientSoftTverskyDiceLoss, self).__init__()
         self.alpha, self.beta = alpha, beta
         self.focal_gamma = focal_gamma
@@ -80,7 +80,6 @@ class MemoryEfficientSoftTverskyDiceLoss(nn.Module):
         self.tversky_weight = tversky_weight
         self.dice_weight = dice_weight
         self.surface_weight = surface_weight
-
     def forward(self, x, y, loss_mask=None):
         if self.apply_nonlin is not None:
             x = self.apply_nonlin(x)

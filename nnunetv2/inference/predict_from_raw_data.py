@@ -364,6 +364,8 @@ class nnUNetPredictor(object):
                     delfile = data
                     data = torch.from_numpy(np.load(data))
                     os.remove(delfile)
+                
+                print("Predict from raw", data.size(), torch.max(data), torch.min(data), torch.mean(data))
 
                 ofile = preprocessed['ofile']
                 if ofile is not None:
@@ -384,7 +386,7 @@ class nnUNetPredictor(object):
 
                 # convert to numpy to prevent uncatchable memory alignment errors from multiprocessing serialization of torch tensors
                 prediction = self.predict_logits_from_preprocessed_data(data).cpu().detach().numpy()
-
+                print("Predicted", f"Shp {prediction.shape}", f"Size {prediction.size}", f"min {prediction.min()}", f"max {prediction.max()}")
                 if ofile is not None:
                     print('sending off prediction to background worker for resampling and export')
                     r.append(

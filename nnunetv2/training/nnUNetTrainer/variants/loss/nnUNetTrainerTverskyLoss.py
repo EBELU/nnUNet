@@ -42,7 +42,7 @@ class nnUNetTrainerTverskyCELoss(nnUNetTrainer):
         self.tversky_weight = 1
         self.dice_weight = 1
         self.surface_weight = 0
-
+        print("Running Tversky + CE Loss")
     def _build_loss(self):
         if self.label_manager.has_regions:
             loss = DC_and_BCE_loss({},
@@ -96,6 +96,25 @@ class nnUNetTrainerTverskyDiceCELoss_a03b07g1_250(nnUNetTrainerTverskyCELoss):
         self.num_epochs = 250
         self.alpha = 0.3
         self.beta = 0.7
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g1_1000(nnUNetTrainerTverskyCELoss):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                device: torch.device = torch.device('cuda')):
+        """used for debugging plans etc"""
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 1000
+        self.alpha = 0.3
+        self.beta = 0.7
+
+class nnUNetTrainerTverskyDiceCELoss_a03b07g075_250(nnUNetTrainerTverskyCELoss):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                device: torch.device = torch.device('cuda')):
+        """used for debugging plans etc"""
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 250
+        self.alpha = 0.3
+        self.beta = 0.7
+        self.gamma = 0.75
 
 class nnUNetTrainerTverskyDiceCELoss_a03b07g075_OS66_250(nnUNetTrainerTverskyCELoss):
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,

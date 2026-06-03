@@ -33,12 +33,14 @@ class nnUNetTrainerDiceCELoss_noSmooth(nnUNetTrainer):
     def _build_loss(self):
         # set smooth to 0
         if self.label_manager.has_regions:
+            print("DC_and_BCE_loss")
             loss = DC_and_BCE_loss({},
                                    {'batch_dice': self.configuration_manager.batch_dice,
                                     'do_bg': True, 'smooth': 0, 'ddp': self.is_ddp},
                                    use_ignore_label=self.label_manager.ignore_label is not None,
                                    dice_class=MemoryEfficientSoftDiceLoss)
         else:
+            print("DC_and_CE_loss")
             loss = DC_and_CE_loss({'batch_dice': self.configuration_manager.batch_dice,
                                    'smooth': 0, 'do_bg': False, 'ddp': self.is_ddp}, {}, weight_ce=1, weight_dice=1,
                                   ignore_label=self.label_manager.ignore_label,
